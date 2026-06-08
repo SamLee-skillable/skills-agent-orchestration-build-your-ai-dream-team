@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <header class="dashboard-header">
+        <h1>Project Pulse</h1>
+        <p class="subtitle">Team delivery health and recent momentum</p>
+      </header>
+
+      <main aria-live="polite">
+        <section id="project-grid" class="project-grid" aria-label="Project dashboard"></section>
+      </main>
+    </div>
+
+    <script>
+      const projectGrid = document.getElementById("project-grid");
+
+      const statusVariants = new Set(["on-track", "at-risk", "blocked", "complete", "unknown"]);
+      const priorityVariants = new Set(["critical", "high", "medium", "low", "unknown"]);
+
+      function normalizeVariant(value, allowed) {
+        if (typeof value !== "string") return "unknown";
+        const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
+        return allowed.has(normalized) ? normalized : "unknown";
+      }
+
+      function renderMessage(message, type = "info") {
+        projectGrid.innerHTML = "";
+        const state = document.createElement("p");
+        state.className = `state-message state-${type}`;
+        state.textContent = message;
+        projectGrid.appendChild(state);
+      }
+
+      function createBadge(type, rawValue, labelText, allowedSet) {
+        const normalized = normalizeVariant(rawValue, allowedSet);
+        const badge = document.createElement("span");
+        badge.className = `badge ${type}-badge ${type}-${normalized}`;
+        badge.textContent = `${labelText}: ${normalized}`;
+        return badge;
+      }
+
+      function createProjectCard(project) {
+        const article = document.createElement("article");
+        article.className = "project-card";
+        article.tabIndex = 0;
+
+        const name = typeof project.name === "string" && project.name.trim() ? project.name.trim() : "Untitled project";
+        const owner = typeof project.owner === "string" && project.owner.trim() ? project.owner.trim() : "Unknown owner";
+        const recentActivity =
+          typeof project.recentActivity === "string" && project.recentActivity.trim()
+            ? project.recentActivity.trim()
+            : "No recent activity provided";
+
+        article.innerHTML = `
+          <h2>${name}</h2>
+          <p><span class="meta-label">Owner:</span> ${owner}</p>
+          <p><span class="meta-label">Recent activity:</span> ${recentActivity}</p>
+        `;
+
+        const badgeRow = document.createElement("div");
+        badgeRow.className = "badge-row";
+        badgeRow.appendChild(createBadge("status", project.status, "Status", statusVariants));
+        badgeRow.appendChild(createBadge("priority", project.priority, "Priority", priorityVariants));
+        article.appendChild(badgeRow);
+
+        return article;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Data request failed with status ${response.status}.`);
+          }
+
+          const data = await response.json();
+          const projects = Array.isArray(data.projects) ? data.projects : [];
+
+          if (projects.length === 0) {
+            renderMessage("No projects available yet. Add projects to project-data.json to populate the dashboard.");
+            return;
+          }
+
+          projectGrid.innerHTML = "";
+          projects.forEach((project) => {
+            projectGrid.appendChild(createProjectCard(project));
+          });
+        } catch (error) {
+          renderMessage("Unable to load project dashboard data. Please check project-data.json and try again.", "error");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

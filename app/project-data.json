@@ -1,0 +1,32 @@
+{
+  "projects": [
+    {
+      "name": "Payments API Hardening",
+      "owner": "Avery Chen",
+      "status": "on-track",
+      "recentActivity": "Completed penetration test remediation checklist",
+      "priority": "high"
+    },
+    {
+      "name": "Customer Insights Dashboard",
+      "owner": "Jordan Patel",
+      "status": "at-risk",
+      "recentActivity": "Awaiting analytics warehouse schema update",
+      "priority": "critical"
+    },
+    {
+      "name": "Mobile Offline Sync",
+      "owner": "Riley Morgan",
+      "status": "blocked",
+      "recentActivity": "Dependency conflict identified in sync queue library",
+      "priority": "medium"
+    },
+    {
+      "name": "Onboarding Revamp",
+      "owner": "Taylor Nguyen",
+      "status": "complete",
+      "recentActivity": "Released to 100% of new user traffic",
+      "priority": "low"
+    }
+  ]
+}
